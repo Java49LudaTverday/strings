@@ -54,8 +54,7 @@ class StringsTest {
 		assertFalse("_".matches(regex));
 		assertFalse("a#".matches(regex));
 		assertFalse("a b".matches(regex));
-		assertFalse("a-b".matches(regex));
-		
+		assertFalse("a-b".matches(regex));		
 	}
 	
 	@Test
