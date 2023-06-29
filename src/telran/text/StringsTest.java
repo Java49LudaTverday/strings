@@ -111,7 +111,34 @@ class StringsTest {
 		assertFalse("1.2.3.4.5".matches(regex));
 		assertFalse("1111.2222.3.4".matches(regex));
 		assertFalse("11.00.00.22.3".matches(regex));
-		assertFalse("256.256.256.256".matches(regex));
+		assertFalse("256.256.256.256".matches(regex));		
+	}
+	
+	@Test
+	void arithmeticExpressionTest() {
+		assertTrue(Strings.isArithmeticExpression(" 12 "));
+		assertTrue(Strings.isArithmeticExpression(" 12/300 "));
+		assertTrue(Strings.isArithmeticExpression("12/300"));
+		assertTrue(Strings.isArithmeticExpression(" 12* 2/3 + 1000 "));
+		assertTrue(Strings.isArithmeticExpression(" 120 / 50 + 100 - 2 * 3 / 500"));
+		
+		assertFalse(Strings.isArithmeticExpression(" 12 18 "));
+		assertFalse(Strings.isArithmeticExpression(" 12 /3&4 "));
+		assertFalse(Strings.isArithmeticExpression(" 12 +20- "));
+		assertFalse(Strings.isArithmeticExpression(" 12 /18 + 100 10 "));
+	}
+	
+	@Test
+	void computeExpressionTest() {
+		assertEquals(12, Strings.computeExpression(" 12 "));
+		assertEquals(2, Strings.computeExpression(" 12/ 6 "));
+		assertEquals(6, Strings.computeExpression(" 12/2 "));
+		assertEquals(1008, Strings.computeExpression(" 12* 2/3 + 1000 "));
+		assertEquals(0, Strings.computeExpression(" 120 / 50 + 100 - 2 * 3 / 500"));
+		assertThrowsExactly(IllegalArgumentException.class,
+				() -> Strings.computeExpression(" 12/ 18 + 100 10"));
+		
+		
 		
 	}
 	
