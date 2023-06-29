@@ -45,9 +45,8 @@ public class Strings {
 	}
 
 	public static String operand() {
-		int a = 010   /   2;
+		int a = 010/2;//not desimal
 		//assumption: not unary operator
-		System.out.println(a);
 		return "(\\d+)";
 	}
 	
@@ -62,6 +61,7 @@ public class Strings {
 		}
 		expression = expression.replaceAll("\\s+", "");
 		String[] operands = expression.split(operator());
+		//breaks a given string around matches of the given regular expression
 		String[] operators = expression.split(operand());
 		int res = Integer.parseInt(operands[0]);
 		for(int i = 1; i < operands.length; i++) {
