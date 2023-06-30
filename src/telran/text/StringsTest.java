@@ -2,6 +2,9 @@ package telran.text;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashMap;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.Test;
 
 class StringsTest {
@@ -128,18 +131,72 @@ class StringsTest {
 		assertFalse(Strings.isArithmeticExpression(" 12 /18 + 100 10 "));
 	}
 	
+	@Test 
+	void operandTest () {
+		String regex = Strings.operand();
+		assertTrue("10".matches(regex));
+		assertTrue("0.100".matches(regex));
+		assertTrue("10.1".matches(regex));
+		assertTrue("10.0".matches(regex));
+		assertTrue(".1".matches(regex));
+		assertTrue("0.1".matches(regex));
+		assertTrue("10.0".matches(regex));
+		assertTrue("10.12340000".matches(regex));
+		assertTrue("10.".matches(regex));
+		assertTrue( "_$".matches(regex));
+		assertTrue( "__".matches(regex));
+		assertTrue( "abc1234567890".matches(regex));
+		
+		assertFalse(".10.".matches(regex));
+		assertFalse("12.10.15".matches(regex));
+		assertFalse("10..".matches(regex));
+		assertFalse("".matches(regex));		
+	}
+	
 	@Test
-	void computeExpressionTest() {
-		assertEquals(12, Strings.computeExpression(" 12 "));
-		assertEquals(2, Strings.computeExpression(" 12/ 6 "));
-		assertEquals(6, Strings.computeExpression(" 12/2 "));
-		assertEquals(1008, Strings.computeExpression(" 12* 2/3 + 1000 "));
-		assertEquals(0, Strings.computeExpression(" 120 / 50 + 100 - 2 * 3 / 500"));
+	void operatorTest() {
+		String regex = Strings.operator();
+		assertTrue("+".matches(regex));
+		assertTrue("-".matches(regex));
+		assertTrue("/".matches(regex));
+		assertTrue("*".matches(regex));
+		
+		assertFalse("&".matches(regex));
+		assertFalse(")".matches(regex));
+		assertFalse("1".matches(regex));	
+		
+	}
+	
+	@Test
+	void computeExpressionDoubleTest () {
+		double[] values = {10, 0.1, 0.5, 10.1, .10, 10.};
+		String[] nameVar = {"v_10", "v_0dote1", "v_0dote5", "v_10dote1", "v_dote10", "v_10dote" };
+		HashMap<String,Double> mapVariables = getMapVariables( nameVar, values );
+		
+		assertEquals(2, Strings.computeExpression("20 /5/ 2", mapVariables));
+		assertEquals(1.0, Strings.computeExpression("v_10 * v_0dote1", mapVariables));
+		assertEquals(9.9,Strings.computeExpression("v_10dote + 10- v_10dote1", mapVariables) );
+		assertEquals(0.01,Strings.computeExpression("v_dote10 / 10", mapVariables) );
+		
+		assertThrowsExactly(NoSuchElementException.class,
+				() -> Strings.computeExpression("a / 10", mapVariables));
+		assertThrowsExactly(NoSuchElementException.class,
+				() -> Strings.computeExpression("null / 10", mapVariables));
 		assertThrowsExactly(IllegalArgumentException.class,
-				() -> Strings.computeExpression(" 12/ 18 + 100 10"));
+				() -> Strings.computeExpression("a $ 10 +", mapVariables));
+		assertThrowsExactly(IllegalArgumentException.class,
+				() -> Strings.computeExpression(" ", mapVariables));
 		
 		
+	}
+
+	private HashMap<String,Double> getMapVariables(String[] nameVar, double[] values) {
+		HashMap<String,Double> mapVariables = new HashMap<>();
+		for(int i = 0; i<nameVar.length; i++) {
+			mapVariables.put(nameVar[i], values[i]);
+		}
 		
+		return mapVariables;
 	}
 	
 

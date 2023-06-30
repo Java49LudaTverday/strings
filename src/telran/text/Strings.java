@@ -1,10 +1,12 @@
 package telran.text;
 
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.function.BinaryOperator;
 
 public class Strings {
-	static HashMap<String, BinaryOperator<Integer>> mapOperations;
+	static HashMap<String, BinaryOperator<Double>> mapOperations;
+	
 	static {
 		mapOperations = new HashMap<>();
 		mapOperations.put("-", (a,b) -> a - b);
@@ -25,13 +27,10 @@ public class Strings {
 	public static String ipV4Octet () {
 		//positive number from zero to 255;
 		// and leading zeros are allowed;
-		//return "[0-1]?\\d{1,2}|2[0-4]\\d|25[0-5]";
 		return "([01]?\\d\\d?|2([0-4]\\d|5[0-5]))";
 	}
 	public static String ipV4 () {
-		//four ipV4 octets separated by dot 123.123.255.01
-		//return "(("+ipV4Octet()+")\\.){3}("+ipV4Octet()+")";
-		//return String.format("(%s[.]){3}%s", ipV4Octet(),ipV4Octet());
+		
 		return String.format("(%1$s\\.){3}%1$s", ipV4Octet());
 	}
 	public static String arithmeticExpression() {
@@ -45,9 +44,8 @@ public class Strings {
 	}
 
 	public static String operand() {
-		int a = 010/2;//not desimal
-		//assumption: not unary operator
-		return "(\\d+)";
+		String variable = javaVariableName();
+		return String.format("((\\d+([.]\\d*)?)|(\\.\\d+)|%s)",variable);
 	}
 	
 	public static boolean isArithmeticExpression(String expression) {
@@ -55,27 +53,35 @@ public class Strings {
 		return expression.matches(arithmeticExpression());
 	}
 	
-	public static int computeExpression(String expression) {
+	public static double computeExpression(String expression, 
+			HashMap<String, Double> mapVariables) {
 		if(!isArithmeticExpression(expression)) {
 			throw new IllegalArgumentException("Wrong arithmetic expression");
 		}
 		expression = expression.replaceAll("\\s+", "");
 		String[] operands = expression.split(operator());
-		//breaks a given string around matches of the given regular expression
 		String[] operators = expression.split(operand());
-		int res = Integer.parseInt(operands[0]);
-		for(int i = 1; i < operands.length; i++) {
-			int operand = Integer.parseInt(operands[i]);
-			res = mapOperations.get(operators[i]).apply(res, operand);
-			
-		}
 		
+		Double res = getOperand(operands[0], mapVariables);				
+		for(int i = 1; i < operands.length; i++) {
+			Double operand = getOperand(operands[i], mapVariables);			
+			res = mapOperations.get(operators[i]).apply(res, operand);
+		}
 		return res;
 	}
-	public static double computeExpression(String expression, 
-			HashMap<String, Double> mapVariables) {
-		//TODO
-		return 0;
+
+	private static Double getOperand(String operand, HashMap<String, Double> mapVariables) {
+		Double res = null;
+		try {
+			res = Double.parseDouble(operand);
+		}
+		catch (Exception e) {
+			res = mapVariables.get(operand);
+			if( res == null ) {
+				throw new NoSuchElementException();
+			}
+		}
+		return res;
 	}
 
 }
