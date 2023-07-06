@@ -49,7 +49,7 @@ public class Strings {
 	}
 	
 	public static boolean isArithmeticExpression(String expression) {
-		expression = expression.trim();// removed first and last space;
+		expression = expression.trim();// remove first and last space;
 		return expression.matches(arithmeticExpression());
 	}
 	
@@ -62,7 +62,7 @@ public class Strings {
 		String[] operands = expression.split(operator());
 		String[] operators = expression.split(operand());
 		
-		Double res = getOperand(operands[0], mapVariables);				
+		double res = getOperand(operands[0], mapVariables);				
 		for(int i = 1; i < operands.length; i++) {
 			Double operand = getOperand(operands[i], mapVariables);			
 			res = mapOperations.get(operators[i]).apply(res, operand);
@@ -70,16 +70,15 @@ public class Strings {
 		return res;
 	}
 
-	private static Double getOperand(String operand, HashMap<String, Double> mapVariables) {
-		Double res = null;
-		try {
-			res = Double.parseDouble(operand);
-		}
-		catch (Exception e) {
-			res = mapVariables.get(operand);
-			if( res == null ) {
+	private static double getOperand(String operand, HashMap<String, Double> mapVariables) {
+		double res = 0;
+		if (operand.matches(javaVariableName())) {
+			if(!mapVariables.containsKey(operand)) {
 				throw new NoSuchElementException();
 			}
+			res = mapVariables.get(operand);
+		} else {
+			res = Double.parseDouble(operand);
 		}
 		return res;
 	}

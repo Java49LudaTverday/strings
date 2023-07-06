@@ -178,6 +178,8 @@ class StringsTest {
 		assertEquals(9.9,Strings.computeExpression("v_10dote + 10- v_10dote1", mapVariables) );
 		assertEquals(0.01,Strings.computeExpression("v_dote10 / 10", mapVariables) );
 		
+		assertEquals(1.0, Strings.computeExpression("001", mapVariables));
+		
 		assertThrowsExactly(NoSuchElementException.class,
 				() -> Strings.computeExpression("a / 10", mapVariables));
 		assertThrowsExactly(NoSuchElementException.class,
